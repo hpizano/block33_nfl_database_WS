@@ -1,12 +1,12 @@
 const pg = require('pg');
 const cors = require('cors');
 const morgan = require('morgan');
-const client = new pg.Client('postgres://localhost/nfl_backend_db')
+const client = new pg.Client('postgres://localhost/nfl_backend_db');
 const express = require('express');
 const app = express();
 app.use(cors());
-app.use(morgan('dev'))
-app.use(express.json())
+app.use(morgan('dev'));
+app.use(express.json());
 
 
 app.get('/api/players', async(req, res, next)=> {
@@ -56,8 +56,8 @@ app.post('/api/players', async(req,res,next) => {
         VALUES($1, $2)
         RETURNING *
         `;
-        const response = await client.query(SQL, [req.body.name, req.body.position])
-        res.send(response.rows)
+        const response = await client.query(SQL, [req.body.name, req.body.position]);
+        res.send(response.rows);
     }catch(error){
         next(error);
     }
@@ -71,11 +71,20 @@ app.put('/api/players/:id', async(req,res,next) => {
         WHERE id = $3
         RETURNING *
         `;
-        const response = await client.query(SQL, [req.body.name, req.body.position, req.params.id])
-        res.send(response.rows)
+        const response = await client.query(SQL, [req.body.name, req.body.position, req.params.id]);
+        res.send(response.rows);
     } catch(error){
         next(error);
     }
+})
+
+//Custom 404 route
+app.use('*', (req,res,next) => {
+    res.status(404).send('Invalid Route');
+})
+
+app.use((err, req, res, next) => {
+    res.status(500).send(err.message);
 })
 
 const start = async() => {
@@ -95,7 +104,7 @@ const start = async() => {
 
     `;
     await client.query(SQL);
-    console.log('tables created')
+    console.log('tables created');
     const PORT = process.env.PORT || 3000;
     app.listen(PORT, ()=> console.log(`listening on port ${PORT}`));
 };
