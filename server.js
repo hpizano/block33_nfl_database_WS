@@ -63,7 +63,20 @@ app.post('/api/players', async(req,res,next) => {
     }
 })
 
-
+app.put('/api/players/:id', async(req,res,next) => {
+    try{
+        const SQL = `
+        UPDATE players 
+        SET name = $1, position = $2
+        WHERE id = $3
+        RETURNING *
+        `;
+        const response = await client.query(SQL, [req.body.name, req.body.position, req.params.id])
+        res.send(response.rows)
+    } catch(error){
+        next(error);
+    }
+})
 
 const start = async() => {
     await client.connect();
